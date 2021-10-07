@@ -1,0 +1,8 @@
+.sidebar-chat {
+    cursor: pointer;
+    padding: 10px;
+}
+.sidebar-chat:hover {
+    background-color: rgb(153, 148, 148);
+    border-radius: 15px;
+}
