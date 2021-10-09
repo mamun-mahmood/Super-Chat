@@ -1,4 +1,4 @@
-import { AttachFile, InsertEmoticon } from "@mui/icons-material";
+import { AttachFile } from "@mui/icons-material";
 import MoreVert from "@mui/icons-material/MoreVert";
 import SearchOutlined from "@mui/icons-material/SearchOutlined";
 import { Avatar, IconButton } from "@mui/material";
@@ -10,32 +10,23 @@ import {
   onSnapshot,
   getDocs,
   collection,
+  orderBy,
 } from "@firebase/firestore";
 import db from "./FirebaseConfig";
 import MessageSender from "./MessageSender";
 
 export default function Chatbar() {
   const [messages, setMessages] = useState([]);
-  const messageCollection = doc(db, "allMessages/2021-10-06");
-  function readDocument() {
-    onSnapshot(getDocs(db, "allMessages"), (doc) => {
-      setMessages(doc.data().message);
-    });
-  }
-  useEffect(() => {
-    async function getAllData() {
-      const querySnapshot = await getDocs(db, 'allMessages')
-      setMessages(
-        querySnapshot.docs.map((doc) => ({ id: doc.id, data: doc.data() }))
-      );
-      querySnapshot.forEach((doc) => {
-        // doc.data() is never undefined for query doc snapshots
-        setMessages(doc.data())
-      });
-    }
-    getAllData();
-  }, []);
-  console.log(messages);
+  useEffect(
+    () =>
+      onSnapshot(collection(db, "allMessages"),orderBy("timestamp", "asec"), (snapshot) => {
+        setMessages(
+          snapshot.docs.map((doc) => ({ id: doc.id, data: doc.data() }))
+        );
+      }),
+    []
+  );
+
   return (
     <div className="chat ">
       <div className="chatHeader">
@@ -57,13 +48,13 @@ export default function Chatbar() {
         </div>
       </div>
       <div className="chatBody">
-        {messages.map((msg) =>
-          <p className="chatMsg" key={msg.id}>
+        {messages.map((msg) => (
+          <p className="chatMsg sentMsg" key={msg.id}>
             <span className="chatName">Mamun</span>
             {msg.data.message}
             <span className="chatTimeStamp">{new Date().toUTCString()}</span>
           </p>
-        )}
+        ))}
       </div>
       <div className="chatFooter">
         <MessageSender />
